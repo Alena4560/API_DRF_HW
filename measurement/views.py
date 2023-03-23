@@ -1,8 +1,6 @@
 from rest_framework.generics import CreateAPIView, RetrieveAPIView, ListAPIView, UpdateAPIView
 from measurement.serializers import SensorDetailSerializer, MeasurementSerializer
 from measurement.models import Sensor, Measurement
-from django.shortcuts import get_object_or_404
-from django.utils import timezone
 
 
 class CreateSensorAPIView(CreateAPIView):
@@ -10,30 +8,29 @@ class CreateSensorAPIView(CreateAPIView):
     serializer_class = SensorDetailSerializer
 
     def perform_create(self, serializer):
-        serializer.save(created_at=timezone.now())
+        serializer.save()
 
 
 class SensorUpdateView(UpdateAPIView):
     serializer_class = SensorDetailSerializer
     queryset = Sensor.objects.all()
-    lookup_url_kwarg = ('name', 'description')
+    lookup_url_kwarg = 'id'
 
     def perform_update(self, serializer):
-        serializer.save(updated_at=timezone.now())
+        serializer.save()
 
 
 class MeasurementCreateView(CreateAPIView):
     serializer_class = MeasurementSerializer
     queryset = Measurement.objects.all()
+    lookup_url_kwarg = 'id'
 
     def perform_create(self, serializer):
-        sensor_id = self.request.data.get('sensor_id')
-        sensor = get_object_or_404(Sensor, id=sensor_id)
-        serializer.save(sensor=sensor, created_at=timezone.now())
+        serializer.save()
 
 
 class SensorListAPIView(ListAPIView):
-    queryset = Sensor.objects.all()
+    queryset = Sensor.objects.all().values('id', 'name', 'description')
     serializer_class = SensorDetailSerializer
 
 
